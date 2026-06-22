@@ -84,3 +84,9 @@ variable "desired_count" {
   type        = number
   default     = 1
 }
+
+variable "health_check_grace_period_seconds" {
+  description = "Grace period before the ALB health check can fail a task. The Contrast agent rewrites code at startup, so the first boot is slower; this prevents an instrumented task from being killed and restarted before it finishes starting."
+  type        = number
+  default     = 180
+}

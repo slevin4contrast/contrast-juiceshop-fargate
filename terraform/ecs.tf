@@ -71,6 +71,13 @@ resource "aws_ecs_service" "juice_shop" {
   desired_count   = var.desired_count
   launch_type     = "FARGATE"
 
+  # The Contrast agent rewrites application code at startup, which slows the
+  # first boot. Give the task time to become healthy before the ALB health
+  # check can mark it failed and trigger a restart loop. Increase this (or use
+  # the agent rewriter CLI in the build) if you see tasks cycling.
+  # https://support.contrastsecurity.com/hc/en-us/articles/9877427810068-Node-js-Startup-Troubleshooting
+  health_check_grace_period_seconds = var.health_check_grace_period_seconds
+
   network_configuration {
     subnets          = var.private_subnet_ids
     security_groups  = [aws_security_group.service.id]

@@ -165,7 +165,7 @@ info: Server listening on port 3000
 
 Second, open `juice_shop_url` in a browser and click around the app. Within a minute or two the application appears in your Contrast organization, and as you exercise routes the agent reports libraries, route coverage, and vulnerabilities.
 
-If the agent starts but can't connect, check the token value and the task's outbound HTTPS path. Useful references: [Node.js startup troubleshooting](https://support.contrastsecurity.com/hc/en-us/articles/9877427810068-Node-js-Startup-Troubleshooting) and [Connectivity issues with the Node agent](https://support.contrastsecurity.com/hc/en-us/articles/360025098992).
+If the agent starts but can't connect, check the token value and the task's outbound HTTPS path. If tasks keep cycling (starting, then getting replaced), the agent's startup code-rewriting is likely taking longer than the health check allows. The Terraform sets `health_check_grace_period_seconds = 180` to absorb this; raise it if needed, or pre-compile with the [agent rewriter CLI](https://docs.contrastsecurity.com/en/node-js-agent-rewriter-cli.html) so boots are faster. Useful references: [Node.js startup troubleshooting](https://support.contrastsecurity.com/hc/en-us/articles/9877427810068-Node-js-Startup-Troubleshooting) and [Connectivity issues with the Node agent](https://support.contrastsecurity.com/hc/en-us/articles/360025098992).
 
 ---
 

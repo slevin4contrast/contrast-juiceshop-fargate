@@ -26,6 +26,8 @@ This is an example/demo project. Juice Shop is an intentionally insecure applica
 
 Juice Shop ships a **distroless** container image (no shell, no npm). The agent is therefore installed in the Docker build stage and preloaded at runtime via `NODE_OPTIONS="--import @contrast/agent"`, following Contrast's [distroless containers](https://docs.contrastsecurity.com/en/distroless-containers.html) guidance. On Fargate, the ECS task definition references the agent token by its Secrets Manager ARN and injects it as the `CONTRAST__API__TOKEN` environment variable when the task starts.
 
+The defaults are tuned for an **ADR (Application Detection and Response)** evaluation: Protect and observe mode are on, and the server environment is set, which is what ADR requires. See the "Agent capabilities" section of [TUTORIAL.md](./TUTORIAL.md) to adjust.
+
 ## Quickstart
 
 You need Docker, the AWS CLI (authenticated), Terraform >= 1.5, an existing VPC with subnets, and a Contrast agent token.

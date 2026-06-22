@@ -129,6 +129,29 @@ secrets = [
 
 Application metadata that isn't sensitive is set as ordinary environment variables, following Contrast's recommended split of credentials in a secrets manager and app config in env vars: `CONTRAST__APPLICATION__NAME`, `CONTRAST__SERVER__NAME` (a stable name so churning tasks don't create many server records), and `CONTRAST__SERVER__ENVIRONMENT`. The full list of variables is in [Configure the Node.js agent](https://docs.contrastsecurity.com/en/node-js-configuration.html).
 
+### Agent capabilities (configured for ADR)
+
+This stack is set up by default for an **ADR (Application Detection and Response)** evaluation. ADR's requirement is that Contrast Protect is on and the server environment is set to DEVELOPMENT, QA, or PRODUCTION, see [Incident management with ADR](https://docs.contrastsecurity.com/en/application-detection-and-response--adr-.html). The defaults satisfy that and add observe mode:
+
+- `contrast_protect_enabled` (default `true`) sets `CONTRAST__PROTECT__ENABLE` — runtime defense (RASP), required for ADR.
+- `contrast_observe_enabled` (default `true`) sets `CONTRAST__OBSERVE__ENABLE` — security observability, the runtime behavior model ADR draws on ([observe mode docs](https://docs.contrastsecurity.com/en/application-behavior.html)).
+- `contrast_server_environment` (default `QA`) — must be one of the three valid environments, which it is.
+- `contrast_assess_enabled` (default `true`) sets `CONTRAST__ASSESS__ENABLE` — IAST. Not required for ADR; set it `false` to keep the test lean and roughly halve memory.
+
+Every non-secret agent setting is just a `CONTRAST__*` environment variable on the container, built in `terraform/ecs.tf`. You don't need to edit the module. For anything beyond the toggles above, use the `extra_contrast_env` map with the `CONTRAST__SECTION__KEY` convention (double underscores map to nested YAML keys). For example, to put a specific Protect rule into block mode:
+
+```hcl
+contrast_protect_enabled = true
+contrast_observe_enabled = true
+
+extra_contrast_env = {
+  "CONTRAST__PROTECT__RULES__SQL_INJECTION__MODE" = "block"
+  "CONTRAST__AGENT__LOGGER__LEVEL"                = "DEBUG"
+}
+```
+
+Keep secrets out of `extra_contrast_env`; the agent token is the only credential and it's already handled through Secrets Manager. Protect, observe, and Assess can also be governed centrally from the Contrast UI and organization policy, which take precedence per the [order of precedence](https://docs.contrastsecurity.com/en/order-of-precedence.html).
+
 ---
 
 ## Step 5 — Deploy

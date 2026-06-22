@@ -63,6 +63,40 @@ variable "contrast_server_environment" {
   default     = "QA"
 }
 
+variable "contrast_protect_enabled" {
+  description = "Turn on Contrast Protect (runtime defense / RASP). Sets CONTRAST__PROTECT__ENABLE. Required for ADR. Default on for ADR evaluation."
+  type        = bool
+  default     = true
+}
+
+variable "contrast_observe_enabled" {
+  description = "Turn on observe mode / security observability (the runtime behavior model ADR uses). Sets CONTRAST__OBSERVE__ENABLE. Default on for ADR evaluation."
+  type        = bool
+  default     = true
+}
+
+variable "contrast_assess_enabled" {
+  description = "Turn on Contrast Assess (interactive analysis / IAST). Sets CONTRAST__ASSESS__ENABLE. Note: Assess roughly doubles memory use, size task_memory accordingly. Not required for ADR; set false to keep an ADR test lean."
+  type        = bool
+  default     = true
+}
+
+variable "extra_contrast_env" {
+  description = <<-EOT
+    Any additional Contrast agent settings, as a map of environment variable name to value.
+    Use the CONTRAST__SECTION__KEY convention (double underscores map to nested YAML keys).
+    Do NOT put secrets here (the agent token is handled via Secrets Manager). Examples:
+      {
+        "CONTRAST__AGENT__LOGGER__LEVEL"        = "DEBUG"
+        "CONTRAST__APPLICATION__SESSION_METADATA" = "buildNumber=1.0.0"
+        "CONTRAST__PROTECT__RULES__SQL_INJECTION__MODE" = "block"
+      }
+    Full list: https://docs.contrastsecurity.com/en/node-js-configuration.html
+  EOT
+  type        = map(string)
+  default     = {}
+}
+
 # --- Fargate sizing ---
 # Note: the Contrast docs recommend DOUBLING memory when running Assess.
 # 1 vCPU / 2 GB is a sensible starting point for an instrumented Juice Shop demo.

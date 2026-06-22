@@ -13,6 +13,20 @@ contrast_application_name   = "juice-shop"
 contrast_server_name        = "juice-shop-fargate"
 contrast_server_environment = "QA"
 
+# Agent capabilities
+# Defaults below are tuned for an ADR (Application Detection and Response) evaluation:
+# Protect + observe on, with a set server environment (above). ADR requires Protect.
+contrast_protect_enabled = true  # runtime defense (RASP), required for ADR
+contrast_observe_enabled = true  # security observability / runtime behavior model
+contrast_assess_enabled  = true  # IAST; not needed for ADR. Set false to keep the test lean and halve memory.
+
+# Any other agent setting goes here, no need to edit the module.
+# Use the CONTRAST__SECTION__KEY convention. Do NOT put secrets here.
+# extra_contrast_env = {
+#   "CONTRAST__AGENT__LOGGER__LEVEL"                = "DEBUG"
+#   "CONTRAST__PROTECT__RULES__SQL_INJECTION__MODE" = "block"
+# }
+
 # Sizing (memory is doubled vs. an uninstrumented app, per Contrast guidance for Assess)
 task_cpu      = 1024
 task_memory   = 2048

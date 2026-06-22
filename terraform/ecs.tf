@@ -12,6 +12,27 @@ resource "aws_cloudwatch_log_group" "juice_shop" {
   retention_in_days = 14
 }
 
+locals {
+  # Base, non-secret agent configuration. The agent token is injected separately
+  # via Secrets Manager (see the `secrets` block below), never as a plain env var.
+  contrast_base_env = {
+    CONTRAST__APPLICATION__NAME   = var.contrast_application_name
+    CONTRAST__SERVER__NAME        = var.contrast_server_name
+    CONTRAST__SERVER__ENVIRONMENT = var.contrast_server_environment
+    # Protect + observe are the two ADR needs (plus a set server environment, above).
+    CONTRAST__PROTECT__ENABLE = tostring(var.contrast_protect_enabled)
+    CONTRAST__OBSERVE__ENABLE = tostring(var.contrast_observe_enabled)
+    CONTRAST__ASSESS__ENABLE  = tostring(var.contrast_assess_enabled)
+    # Send agent logs to stdout so they land in CloudWatch.
+    CONTRAST__AGENT__LOGGER__STDOUT = "true"
+  }
+
+  # Merge base settings with any user-supplied overrides/additions, then shape
+  # into the [{name, value}] form ECS expects. extra_contrast_env wins on conflict.
+  contrast_env_map = merge(local.contrast_base_env, var.extra_contrast_env)
+  contrast_env     = [for k, v in local.contrast_env_map : { name = k, value = v }]
+}
+
 resource "aws_ecs_task_definition" "juice_shop" {
   family                   = var.project_name
   requires_compatibilities = ["FARGATE"]
@@ -34,15 +55,9 @@ resource "aws_ecs_task_definition" "juice_shop" {
         }
       ]
 
-      # Non-secret, application-specific agent configuration as plain env vars.
+      # Non-secret agent configuration as plain env vars (built in locals above).
       # The agent is preloaded by NODE_OPTIONS, which is baked into the image.
-      environment = [
-        { name = "CONTRAST__APPLICATION__NAME", value = var.contrast_application_name },
-        { name = "CONTRAST__SERVER__NAME", value = var.contrast_server_name },
-        { name = "CONTRAST__SERVER__ENVIRONMENT", value = var.contrast_server_environment },
-        # Send agent logs to stdout so they land in CloudWatch.
-        { name = "CONTRAST__AGENT__LOGGER__STDOUT", value = "true" }
-      ]
+      environment = local.contrast_env
 
       # The agent token is injected from Secrets Manager, never stored in the task def.
       secrets = [

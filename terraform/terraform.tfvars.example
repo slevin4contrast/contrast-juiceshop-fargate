@@ -1,0 +1,23 @@
+# Copy to terraform.tfvars and fill in. Do NOT commit terraform.tfvars or the
+# Contrast token to version control.
+
+aws_region         = "us-east-1"
+project_name       = "juice-shop-contrast"
+vpc_id             = "vpc-xxxxxxxx"
+public_subnet_ids  = ["subnet-aaaa", "subnet-bbbb"]
+private_subnet_ids = ["subnet-cccc", "subnet-dddd"]
+assign_public_ip   = false
+
+# Reported metadata
+contrast_application_name   = "juice-shop"
+contrast_server_name        = "juice-shop-fargate"
+contrast_server_environment = "QA"
+
+# Sizing (memory is doubled vs. an uninstrumented app, per Contrast guidance for Assess)
+task_cpu      = 1024
+task_memory   = 2048
+desired_count = 1
+
+# Prefer providing the token via an environment variable instead of this file:
+#   export TF_VAR_contrast_api_token="<paste agent token>"
+# contrast_api_token = "..."

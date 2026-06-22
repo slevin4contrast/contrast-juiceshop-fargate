@@ -1,0 +1,30 @@
+# --- Secrets: never commit the Contrast token or real variable values ---
+terraform.tfvars
+*.auto.tfvars
+*.tfvars.json
+.env
+contrast_security.yaml
+
+# --- Terraform ---
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.tfplan
+
+# --- Node (in case the Juice Shop source is checked out alongside) ---
+node_modules/
+npm-debug.log*
+.contrast/
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
